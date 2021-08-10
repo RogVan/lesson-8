@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Switch, Route } from 'react-router-dom';
 
 import './App.css';
@@ -7,7 +7,7 @@ import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import Header from './components/header/header.component';
-import { auth } from './firebase/firebase.utils';
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 
 function App() {
 
@@ -15,10 +15,20 @@ function App() {
 
   useEffect(()=>{
   //Component did mount
+  
+  const unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth=>{
+    if(userAuth){
+      const userRef = await createUserProfileDocument(userAuth);
 
-  const unsubscribeFromAuth = auth.onAuthStateChanged(user=>{
-    setCurrentUser(user);
-    console.log(user);
+      userRef.onSnapshot(snapShot => {
+        setCurrentUser({
+          id: snapShot.id,
+          ...snapShot.data()
+        })
+      })
+    } else{
+      setCurrentUser(userAuth);
+    }
   })
 
     return ()=> {
@@ -27,9 +37,7 @@ function App() {
     };
   }, [])
 
-
-
-
+  useEffect(()=>{console.log(currentUser)}, [currentUser])
   return (
     <div>
       <Header currentUser={currentUser} />
