@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 
 import './App.css';
@@ -8,10 +8,11 @@ import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import Header from './components/header/header.component';
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+import { connect } from 'react-redux';
+import {setCurrentUser} from './redux/user/user.actions'
 
-function App() {
+function App({setCurrentUser}) {
 
-  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(()=>{
   //Component did mount
@@ -37,11 +38,10 @@ function App() {
     };
   }, [])
 
-  useEffect(()=>{console.log(currentUser)}, [currentUser])
-  
+
   return (
     <div>
-      <Header currentUser={currentUser} />
+      <Header />
       <Switch>
         <Route exact path='/' component={HomePage} />
         <Route path='/shop' component={ShopPage} />
@@ -51,4 +51,8 @@ function App() {
   );
 }
 
-export default App;
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+})
+
+export default connect(null, mapDispatchToProps)(App);
